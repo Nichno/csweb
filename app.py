@@ -121,7 +121,6 @@ def upload_file():
         file.save(save_path)
         file_path = "/home/nicolai/csweb/matches/" + filename
         print(file_path)
-        analyzer.scoreboard(file_path)
         return redirect(url_for('index'))
 
     
