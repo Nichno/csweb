@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 | Replay Analytics</title>
+    <style>
+        :root {
+            --bg-dark: #0f1216;
+            --panel-bg: #1a1d23;
+            --accent-orange: #ff9a00;
+            --accent-blue: #00d4ff;
+            --text-main: #e0e0e0;
+            --text-dim: #888;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Korrektur: Nur Links in der Nav stylen, nicht alle <a> Tags */
+        nav {
+            width: 200px;
+            background: #080a0c;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            border-right: 1px solid #222;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            width: 80%;
+            margin-bottom: 20px;
+        }
+
+        .nav-icon {
+            width: 100%;
+            height: 45px;
+            background: #222;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+
+        .nav-icon:hover {
+            background: var(--accent-orange);
+            color: black;
+        }
+
+        main {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #2a2e35;
+            margin-bottom: 20px;
+        }
+
+        .match-item {
+            transition: transform 0.2s, border-color 0.2s;
+            background: #222;
+            padding: 12px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #333;
+            margin-bottom: 8px;
+        }
+
+        .match-item:hover {
+            transform: translateX(5px);
+            border-color: var(--accent-orange);
+            background: #2a2e35;
+        }
+
+        /* Download Button Style */
+        .btn-download {
+            text-decoration: none;
+            background: #333;
+            color: var(--accent-orange);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            border: 1px solid var(--accent-orange);
+            transition: 0.2s;
+        }
+
+        .btn-download:hover {
+            background: var(--accent-orange);
+            color: black;
+        }
+
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .spinner {
+            width: 50px; height: 50px;
+            border: 5px solid #333;
+            border-top: 5px solid var(--accent-orange);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <a href="/" class="nav-link">
+            <div class="nav-icon">Overview</div>
+        </a>
+        <a href="#" class="nav-link">
+            <div class="nav-icon">Matches</div>
+        </a>
+    </nav>
+
+    <main>
+        <header>
+            <h1>Match <span style="color: var(--accent-orange)">Analyzer</span></h1>
+            <form action="/upload" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
+                <input name="datei" type="file" accept=".dem" required>
+                <button type="submit"
+                    style="background: var(--accent-orange); padding: 8px 15px; border:none; cursor:pointer; font-weight:bold; border-radius:4px;">
+                    Upload & Analyze
+                </button>
+            </form>
+        </header>
+
+        <section class="panel">
+            <h3>Saved Matches</h3>
+            <div style="margin-top: 15px;">
+                {% for match in matches %}
+                <div class="match-item">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <a style="font-size: 0.9rem; font-family: monospace; text-decoration: none; color: #ff9a00;" href="/{{match}}"><b>{{match}}</b></a>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <a href="{{ url_for('download_file', filename=match) }}" class="btn-download">
+                            Download
+                        </a>
+
+                        <a href="{{ url_for('analyze_existing', filename=match) }}" onclick="showLoading()"
+                           style="text-decoration: none; background: var(--accent-orange); color: black; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">
+                            Analyze {{analyzed}}
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <p style="color: var(--text-dim); text-align: center; padding: 20px;">No matches found in folder.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top: 20px; letter-spacing: 2px; color: white;">ANALYSING DEMO...</p>
+    </div>
+
+    <script>
+        function showLoading() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+    </script>
+</body>
+
+</html>

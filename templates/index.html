@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 | Replay Analytics</title>
+    <style>
+        :root {
+            --bg-dark: #0f1216;
+            --panel-bg: #1a1d23;
+            --accent-orange: #ff9a00;
+            --accent-blue: #00d4ff;
+            --text-main: #e0e0e0;
+            --text-dim: #888;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+
+        a { 
+            text-decoration: none;
+            width: 200px;
+            background: #080a0c;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 0px;
+            border-right: 1px solid #222;
+            color: rgb(170, 170, 170);
+        }
+
+        nav {
+            width: 200px;
+            background: #080a0c;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            border-right: 1px solid #222;
+        }
+
+        .nav-icon {
+            width: 80%;
+            height: 45px;
+            background: #222;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .nav-icon:hover {
+            background: var(--accent-orange);
+            color: black;
+        }
+
+        main {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        /* Stat Cards Styling */
+        .stats-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: var(--panel-bg);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #2a2e35;
+            text-align: center;
+            border-bottom: 3px solid var(--accent-orange);
+        }
+
+        .stat-card h2 {
+            font-size: 1.8rem;
+            margin-top: 5px;
+        }
+
+        .stat-card small {
+            color: var(--text-dim);
+            text-transform: uppercase;
+            font-size: 0.7rem;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #2a2e35;
+            margin-bottom: 20px;
+        }
+
+        .grid-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            text-align: left;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #333;
+        }
+
+        td {
+            padding: 10px 0;
+            border-bottom: 1px solid #222;
+            font-size: 0.9rem;
+        }
+
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #333;
+            border-top: 5px solid var(--accent-orange);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <a class="nav-icon">Overview</a>
+        <a class="nav-icon" href="/matches">Matches</a>
+    </nav>
+
+    <main>
+        <header>
+            <h1>Match <span style="color: var(--accent-orange)">Analyzer</span></h1>
+            <form action="/upload" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
+                <input name="datei" type="file" accept=".dem" required>
+                <button type="submit"
+                    style="background: var(--accent-orange); padding: 8px 15px; border:none; cursor:pointer; font-weight:bold; border-radius:4px;">
+                    Upload & Analyze
+                </button>
+            </form>
+        </header>
+
+
+
+            <div class="grid-split">
+                <div>
+                    <section class="panel">
+                        <h3>Uploaded Matches</h3>
+                        <div id="match-history" style="margin-top:15px;">
+                            {% for match in matches %}
+                            <div style="border: 1px solid #333; margin-bottom: 5px; border-radius: 4px;">
+                                <button onclick="togglePanel(this)"
+                                    style="width:100%; background:#222; color:white; border:none; padding:10px; text-align:left; cursor:pointer;">
+                                    {{ match }}
+
+                                </button>
+                                <div class="match-details" style="display:none; padding:10px; font-size: 0.8rem;">
+                                    ssssdasdasdasd
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </section>
+
+                    <section class="panel">
+                        <h3>Teams</h3>
+                        <div class="grid-split">
+                            <div>
+                                <h4 style="color: var(--accent-orange); font-size: 0.8rem;">TERRORISTS</h4>
+                                {% for player in teams.T %}
+                                <div style="font-size: 0.85rem; padding: 4px 0;">{{ player.name }}</div>
+                                {% endfor %}
+                            </div>
+                            <div>
+                                <h4 style="color: var(--accent-blue); font-size: 0.8rem;">COUNTER-TERRORISTS</h4>
+                                {% for player in teams.CT %}
+                                <div style="font-size: 0.85rem; padding: 4px 0;">{{ player.name }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+               
+            </div>
+    </main>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top: 20px; letter-spacing: 2px; color: white;">ANALYSING DEMO...</p>
+    </div>
+
+    <script>
+        function showLoading() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+
+        function togglePanel(btn) {
+            const panel = btn.nextElementSibling;
+            panel.style.display = panel.style.display === "block" ? "none" : "block";
+        }
+    </script>
+</body>
+
+</html>
