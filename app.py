@@ -38,7 +38,9 @@ def index():
                            personal=stats.get('personal', {}),
                            teams=stats.get('teams', {}),       
                            kills=stats.get('kills', []),       
-                           dateiname=stats.get('filename', 'Kein Match geladen')
+                           dateiname=stats.get('filename', 'Kein Match geladen'),
+                           file_path=stats.get('file_path'),
+                           header=stats.get('header')
                            )
 #Dynamic pages, for every match in fileStorage
 @app.route('/<match_id>')
@@ -50,13 +52,13 @@ def dynamic_page(match_id):
 
     stats = session.get('stats', {})
 
-    # 3. ALLE Variablen übergeben (WICHTIG!)
+    # Variablen übergeben WICHTIG!
     return render_template('dynamic_page.html',
                            matches=match_files,
                            personal=stats.get('personal', {}),
                            teams=stats.get('teams', {}),       
                            kills=stats.get('kills', []),       
-                           space=stats.get('tot_kills', []),       
+                           space=stats.get('space', {}),       
                            dateiname=stats.get('filename', 'Kein Match geladen'),
                            )
 

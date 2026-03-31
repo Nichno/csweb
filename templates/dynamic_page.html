@@ -205,18 +205,18 @@
                         <thead>
                             <tr>
                                 <th>Attacker</th>
-                                <th></th>
                                 <th>Victim</th>
                                 <th>Weapon</th>
+                                <th>Head</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for tot_kills in space.tot_kills %}
+                            {% for kill in space.tot_kills %}
                             <tr>
                                 <td style="color: var(--accent-orange)">{{ kill.attacker_name }}</td>
-                                <td style="color: var(--text-dim)">{{ kill.pfeil }}</td>
                                 <td style="color: var(--accent-blue)">{{ kill.user_name }}</td>
                                 <td>{{ kill.weapon }}</td>
+                                <td>{{ kill.headshot }}</td>
                             </tr>
                             {% else %}
                             <tr>
