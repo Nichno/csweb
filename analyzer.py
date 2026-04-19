@@ -5,7 +5,7 @@ MY_STEAMID = 76561199014748443
 
 def run_analysis(file_path):
     parser = DemoParser(file_path)
-    
+    df_header = parser.parse_header()
     df_deaths = parser.parse_event("player_death", player=["last_place_name"])
     df_deaths["pfeil"] = " ---->"
     my_kills_df = df_deaths[df_deaths["attacker_steamid"].astype(str) == str(MY_STEAMID)].copy()
@@ -14,7 +14,9 @@ def run_analysis(file_path):
     max_tick = parser.parse_event("round_end")["tick"].max()
     wanted_fields = ["kills_total", "deaths_total", "mvps", "headshot_kills_total", "utility_damage_total"]
     df_score = parser.parse_ticks(wanted_fields, ticks=[max_tick])
-   # df_header = parser.parse_header()
+    heads = pd.df_header.to_string()
+    print(heads)
+    
     
 #own stats
     my_row = df_score[df_score["steamid"].astype(str) == str(MY_STEAMID)]
@@ -33,8 +35,8 @@ def run_analysis(file_path):
             "hs": int(my_stats.get("headshot_kills_total", 0)),
             "mvp": int(my_stats.get("mvps", 0)),
             "util": int(my_stats.get("utility_damage_total", 0)),
-            "analyzed": 1 if my_stats.get("kills_total") else 0
-            #"header": df_header
+            "analyzed": (1 if my_stats.get("kills_total") else 0),
+            "header": str("df_header")
         },
         "space": {
             "tot_kills": tot_kill_list.to_dict(orient='records')
