@@ -49,7 +49,7 @@ csweb/
    python app.py
    ```
 
-The application will start on `http://localhost:5001`
+The application will start on `http://host:5001`
 
 ## Usage
 
