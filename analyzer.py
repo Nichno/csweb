@@ -1,7 +1,7 @@
 from demoparser2 import DemoParser
 import pandas as pd
 
-MY_STEAMID = 76561199014748443
+MY_STEAMID = ################
 
 def run_analysis(file_path):
     parser = DemoParser(file_path)
